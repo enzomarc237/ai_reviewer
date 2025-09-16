@@ -1,5 +1,20 @@
-
 import React from 'react';
+import Editor from 'react-simple-code-editor';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-typescript';
+import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-java';
+import 'prismjs/components/prism-csharp';
+import 'prismjs/components/prism-go';
+import 'prismjs/components/prism-ruby';
+import 'prismjs/components/prism-php';
+import 'prismjs/components/prism-cpp';
+import 'prismjs/components/prism-swift';
+import 'prismjs/components/prism-kotlin';
+import 'prismjs/components/prism-rust';
+
 import { LanguageOption } from '../types';
 import { SUPPORTED_LANGUAGES, EXAMPLE_CODE } from '../constants';
 
@@ -31,6 +46,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, setCode, language, setLan
     }
   };
 
+  const prismLanguage = language === 'cplusplus' ? 'cpp' : language;
+  const placeholder = `Paste your ${SUPPORTED_LANGUAGES.find(l=>l.value === language)?.label || 'code'} here or load a folder...`;
+
   return (
     <div className="bg-white p-6 rounded-xl shadow-2xl space-y-6 h-full flex flex-col">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -60,14 +78,32 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, setCode, language, setLan
         </div>
       </div>
       
-      <textarea
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        placeholder={`Paste your ${SUPPORTED_LANGUAGES.find(l=>l.value === language)?.label || 'code'} here or load a folder...`}
-        className="w-full flex-grow p-4 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none font-mono text-sm bg-slate-50 text-slate-800 h-96"
-        spellCheck="false"
-        aria-label="Code input area"
-      />
+      <div className="w-full flex-grow relative overflow-hidden rounded-lg border border-slate-300">
+        <Editor
+            value={code}
+            onValueChange={setCode}
+            highlight={code => Prism.highlight(code, Prism.languages[prismLanguage] || Prism.languages.javascript, prismLanguage)}
+            padding={16}
+            className="absolute top-0 left-0 right-0 bottom-0 overflow-auto"
+            style={{
+              fontFamily: '"Fira Code", "Fira Mono", monospace',
+              fontSize: 14,
+              backgroundColor: '#272822', // okaidia theme background
+              color: '#f8f8f2',
+            }}
+            textareaId="code-editor"
+            spellCheck="false"
+            aria-label="Code input area"
+        />
+        {!code && (
+            <div 
+                className="absolute top-4 left-4 text-gray-500 pointer-events-none font-mono text-sm"
+                aria-hidden="true"
+            >
+                {placeholder}
+            </div>
+        )}
+    </div>
       
       <div className="mt-auto pt-4"> {/* Pushes button to the bottom if CodeEditor is flex-col */}
         <button
